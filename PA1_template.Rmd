@@ -4,14 +4,14 @@ author: "Hong Chen"
 Date: "March 6, 2020"
 output: html_document
 keep_md: true
----
-library(dplyr)
-library(ggplot2)
-
+----
 
 ## Loading and preprocessing the data
 
 ```{r dataprep, echo=TRUE, include=TRUE}
+  library(dplyr)
+  library(ggplot2)
+
   data<- read.csv(unzip("activity.zip"))
   names(data)
   #head(data)
@@ -60,7 +60,31 @@ library(ggplot2)
   new_step_median <- median(new_step_sum$steps)
   print(paste("New mean is: ", new_step_mean))
   print(paste("New median is: ", new_step_median))
-
+```
   
 
 ## Are there differences in activity patterns between weekdays and weekends?
+``` {r weekdays, echo=TRUE, include=TRUE} 
+    new_data$days <- weekdays(as.Date(new_data$date))
+    new_data$wdwn <- ifelse(new_data$days %in% c("Saturday", "Sunday"), "weekend", "weekday")
+    head(new_data)
+    
+    new_interval <- aggregate(steps~interval+wdwn, new_data, mean)
+    
+    ggplot(new_interval, aes(interval, steps)) +
+    geom_line()+
+    facet_grid(wdwn~.)
+    
+    
+    #int_wkd <- filter(new_interval, wdwn=="weekday")
+    #int_wked <- filter(new_interval, wdwn=="weekend")
+    #par(mfrow=c(2,1))
+    #qplot(interval, steps, data = int_wked)+geom_line()
+    #qplot(interval, steps, data = int_wkd)+geom_line()
+  
+    
+     
+
+ 
+
+
