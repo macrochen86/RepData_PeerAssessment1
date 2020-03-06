@@ -7,8 +7,7 @@ keep_md: true
 ---
 library(dplyr)
 library(ggplot2)
-library(data.table)
-library(tidyverse)
+
 
 ## Loading and preprocessing the data
 
@@ -48,9 +47,20 @@ library(tidyverse)
 ```{r missingvalue, echo=TRUE, include=TRUE}
   NA_sum <- sum(is.na(data$steps))
   print(paste("The total number of rows with NA is: ",NA_sum))
-  data %>% 
-    group_by(date, interval) %>% 
-    mutate_at("steps", function(x) replace(x, is.na(x), mean(x, na.rm = TRUE)))
-```
+  new_data <- data  
+  for (i in 1:nrow(data)){
+        if(is.na(data$steps[i])){
+                new_data$steps[i]<- step_interval$steps[new_data$interval[i] == step_interval$interval]
+        }
+  }
+  head(new_data)
+  new_step_sum <- aggregate(steps~date, new_data, sum)
+  hist(new_step_sum$steps,main = "Histogram of Daily Steps", xlab="Steps", )
+  new_step_mean <- mean(new_step_sum$steps)
+  new_step_median <- median(new_step_sum$steps)
+  print(paste("New mean is: ", new_step_mean))
+  print(paste("New median is: ", new_step_median))
+
+  
 
 ## Are there differences in activity patterns between weekdays and weekends?
