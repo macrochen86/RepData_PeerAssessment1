@@ -1,25 +1,56 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+author: "Hong Chen"
+Date: "March 6, 2020"
+output: html_document
+keep_md: true
 ---
-
+library(dplyr)
+library(ggplot2)
+library(data.table)
+library(tidyverse)
 
 ## Loading and preprocessing the data
 
+```{r dataprep, echo=TRUE, include=TRUE}
+  data<- read.csv(unzip("activity.zip"))
+  names(data)
+  #head(data)
+  
+```
 
 
 ## What is mean total number of steps taken per day?
-
-
+```{r statperday, echo=TRUE, include=TRUE}
+  step_sum <- aggregate(steps~date, data, sum)
+  head(step_sum)
+  hist(step_sum$steps,main = "Histogram of Daily Steps", xlab="Steps", )
+  step_mean <- mean(step_sum$steps)
+  step_median <- median(step_sum$steps)
+  print(paste("The mean is: ", step_mean))
+  print(paste("The median is: ", step_median))
+```
 
 ## What is the average daily activity pattern?
-
-
+```{r statperinteval, echo=TRUE, include=TRUE}
+  step_interval <- aggregate(steps~interval, data, mean)
+  head(step_interval)
+  plot(step_interval$steps ~ step_interval$interval,
+     type="l", xlab = "5 Minute Intervals", ylab = "Average Number of Steps",
+     main = "Steps By Time Interval")
+  Max_steps_interval <- step_interval$interval[which.max(step_interval$steps)]
+  print(paste("Interval containing the most steps on average: ",Max_steps_interval))
+  
+```
+  
 
 ## Imputing missing values
-
-
+```{r missingvalue, echo=TRUE, include=TRUE}
+  NA_sum <- sum(is.na(data$steps))
+  print(paste("The total number of rows with NA is: ",NA_sum))
+  data %>% 
+    group_by(date, interval) %>% 
+    mutate_at("steps", function(x) replace(x, is.na(x), mean(x, na.rm = TRUE)))
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
